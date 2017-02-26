@@ -1,0 +1,23 @@
+language: ruby
+rvm:
+- 2.2
+- 2.1
+- 2.0
+- 1.9.3
+services:
+- docker
+script:
+  - >
+    wget -O- bit.ly/ansibletest | env
+    ANSIBLE_VERSIONS="1.4.4 1.9.2 2.2.1.0"
+    DOCKER_IMAGES="ubuntu:12.04 ubuntu:16.04 debian:7 debian:8
+    debian:stretch
+    fedora:20 fedora:21 fedora:23 fedora:24"
+    sh -x
+
+after_failure:
+- cat role-tester-ansible-master/.kitchen.yml
+- cat role-tester-ansible-master/.kitchen.local.yml
+- cat role-tester-ansible-master/.kitchen/logs/*.log | grep -v '^I, '
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
