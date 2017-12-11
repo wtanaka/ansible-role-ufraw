@@ -1,11 +1,11 @@
 ---
-
 # Update APT configuration
 - name: add multiverse repository
   apt_repository: >
     repo="deb http://archive.ubuntu.com/ubuntu {{ansible_lsb.codename|lower}} multiverse"
     state=present
   register: multiverse_result
+  until: multiverse_result|success
   sudo: yes
   when: ansible_distribution == 'Ubuntu'
 
@@ -15,15 +15,20 @@
     repo="deb http://ftp.debian.org/debian {{ansible_lsb.codename|lower}}-backports main"
     state=present
   register: backports_result
+  until: backports_result|success
   sudo: yes
   when: ansible_distribution == 'Debian'
 
 # Download keys and package lists
 - name: apt-get update
   apt: update_cache=yes cache_valid_time=0
+  register: result_uncached_apt_get_update
+  until: result_uncached_apt_get_update|success
   sudo: yes
   when: multiverse_result.changed or backports_result.changed
 
 - name: apt-get update
   apt: update_cache=true cache_valid_time=3600
+  register: result_apt_get_update
+  until: result_apt_get_update|success
   sudo: yes
